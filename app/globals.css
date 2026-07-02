@@ -19,15 +19,24 @@ html {
 
 @layer components {
   .yandex-form-embed {
+    --ya-footer-clip: 58px;
     position: relative;
     max-width: 650px;
     overflow: hidden;
+  }
+
+  @media (max-width: 1000px) {
+    .yandex-form-embed {
+      /* Footer_branded: column layout, logo + links */
+      --ya-footer-clip: 96px;
+    }
   }
 
   .yandex-form-embed__frame {
     display: block;
     width: 100%;
     min-height: 420px;
+    margin-bottom: calc(-1 * var(--ya-footer-clip));
     border: 0;
     background-color: #122033;
     color-scheme: dark;
