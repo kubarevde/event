@@ -16,3 +16,20 @@ html {
     @apply text-tgu-dark-text antialiased;
   }
 }
+
+@layer components {
+  .yandex-form-embed {
+    position: relative;
+    max-width: 650px;
+    overflow: hidden;
+  }
+
+  .yandex-form-embed__frame {
+    display: block;
+    width: 100%;
+    min-height: 420px;
+    border: 0;
+    background-color: #122033;
+    color-scheme: dark;
+  }
+}

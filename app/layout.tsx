@@ -16,12 +16,19 @@ const inter = Inter({
 
 const title = "Цифра ТГУ: роадмэп, закупки и приоритеты 2027 | 14 октября";
 const description =
-  "Закрытая B2B-сессия для ИТ-вендоров ТГУ. Стратегия цифровой трансформации, приоритеты закупок 2027. 14 октября, Томск.";
+  "Закрытый B2G круглый стол для ИТ-вендоров ТГУ. Стратегия цифровой трансформации, приоритеты закупок 2027. 14 октября, Томск.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://digital.tsu.ru"),
   title,
   description,
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title,
     description,

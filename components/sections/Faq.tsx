@@ -10,7 +10,7 @@ import { EVENT } from "@/data/event";
 const FAQ_ITEMS = [
   {
     q: "Кто может подать заявку?",
-    a: "Закрытая сессия предназначена для представителей ИТ-компаний: вендоров, интеграторов, разработчиков ПО и поставщиков инфраструктурных решений. Формат B2B — не для частных лиц и студентов.",
+    a: "Закрытый круглый стол предназначен для представителей ИТ-компаний: вендоров, интеграторов, разработчиков ПО и поставщиков инфраструктурных решений. Формат B2B — не для частных лиц и студентов.",
   },
   {
     q: "Как проходит отбор участников?",
@@ -18,7 +18,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Что входит в стоимость участия?",
-    a: "Доступ к сессии (очно или онлайн), запись мероприятия, презентационные материалы и возможность задать вопросы напрямую представителям ТГУ.",
+    a: "Доступ к круглому столу (очно или онлайн), запись мероприятия, презентационные материалы и возможность задать вопросы напрямую представителям ТГУ.",
   },
   {
     q: "Куда поступает взнос?",
@@ -30,10 +30,10 @@ const FAQ_ITEMS = [
   },
 ];
 
-const MAP_URL =
-  "https://yandex.ru/maps/?ll=84.947600,56.467700&z=16&pt=84.947600,56.467700";
-const MAP_WIDGET =
-  "https://yandex.ru/map-widget/v1/?ll=84.947600%2C56.467700&z=16&pt=84.947600%2C56.467700~pmwtm1";
+const MAP_LON = 84.947568;
+const MAP_LAT = 56.469463;
+const MAP_URL = `https://yandex.ru/maps/?ll=${MAP_LON},${MAP_LAT}&z=17&pt=${MAP_LON},${MAP_LAT}`;
+const MAP_WIDGET = `https://yandex.ru/map-widget/v1/?ll=${MAP_LON}%2C${MAP_LAT}&z=17&pt=${MAP_LON}%2C${MAP_LAT},pm2rdm`;
 
 export default function Faq() {
   const [open, setOpen] = useState<number | null>(0);
@@ -83,7 +83,6 @@ export default function Faq() {
                 {EVENT.venue}
               </h3>
               <p className="mt-1 font-body text-sm text-tgu-ink-secondary">{EVENT.address}</p>
-              <p className="font-body text-xs text-tgu-muted">2 этаж, ауд. 209</p>
               <p className="mt-3 font-body text-sm text-tgu-dark-text">
                 {EVENT.dateLabel}, 10:00
               </p>

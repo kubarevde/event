@@ -4,11 +4,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
-import Badge from "@/components/ui/Badge";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { SPEAKERS, Speaker } from "@/data/speakers";
-
-const isTbd = (v: string) => v === "TBD";
 
 function SpeakerAvatar({ speaker }: { speaker: Speaker }) {
   const [err, setErr] = useState(false);
@@ -18,16 +15,16 @@ function SpeakerAvatar({ speaker }: { speaker: Speaker }) {
       <Image
         src={speaker.avatar}
         alt={speaker.name}
-        width={72}
-        height={72}
-        className="h-[72px] w-[72px] object-cover"
+        width={400}
+        height={480}
+        className="h-full w-full object-cover object-[center_18%]"
         onError={() => setErr(true)}
       />
     );
   }
 
   return (
-    <div className="flex h-[72px] w-[72px] items-center justify-center bg-tgu-brand-light font-heading text-lg font-semibold text-tgu-brand">
+    <div className="flex h-full w-full items-center justify-center bg-tgu-brand-light font-heading text-3xl font-semibold text-tgu-brand">
       {speaker.initials}
     </div>
   );
@@ -63,29 +60,17 @@ export default function Speakers() {
               }}
               className="border border-tgu-border bg-tgu-surface p-5 text-center transition-shadow hover:shadow-card"
             >
-              <div className="mx-auto w-fit">
+              <div className="mx-auto aspect-[5/6] w-1/2 min-w-[88px] max-w-[140px] overflow-hidden rounded-lg bg-tgu-brand-light">
                 <SpeakerAvatar speaker={speaker} />
               </div>
-              <h3 className="mt-4 font-heading text-base font-semibold text-tgu-dark-text">
+              <h3 className="mt-4 font-heading text-sm font-semibold leading-snug text-tgu-dark-text md:text-base">
                 {speaker.name}
               </h3>
-              {!isTbd(speaker.role) && (
-                <p className="mt-1 font-body text-xs text-tgu-ink-secondary">
+              {speaker.role && (
+                <p className="mt-2 font-body text-xs leading-relaxed text-tgu-ink-secondary">
                   {speaker.role}
                 </p>
               )}
-              {!isTbd(speaker.department) && (
-                <p className="mt-0.5 font-body text-[11px] text-tgu-muted">
-                  {speaker.department}
-                </p>
-              )}
-              <div className="mt-3">
-                {isTbd(speaker.area) ? (
-                  <Badge variant="neutral" label="Скоро" />
-                ) : (
-                  <Badge variant={speaker.areaVariant} label={speaker.area} />
-                )}
-              </div>
             </motion.article>
           ))}
         </motion.div>

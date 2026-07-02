@@ -55,9 +55,9 @@ export default function Hero() {
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <LogoSlot size="hero" />
             <span className="inline-block border border-white/20 px-2.5 py-0.5 font-body text-[11px] font-medium uppercase tracking-wide text-white/80">
-              Закрытая B2B-сессия
+              Закрытый B2G круглый стол
             </span>
-            <span className="flex items-center gap-1.5 font-body text-xs text-white/50">
+            <span className="flex items-center gap-1.5 font-body text-xs text-white/65">
               <Lock className="h-3.5 w-3.5" aria-hidden />
               Только для ИТ-вендоров и интеграторов
             </span>
@@ -67,10 +67,9 @@ export default function Hero() {
             {EVENT.title}
           </h1>
 
-          <p className="mt-5 max-w-lg font-body text-base leading-relaxed text-white/65 md:text-lg">
-            Стратегическая сессия для коммерческих команд: узнайте, куда ТГУ
-            направляет ИТ-бюджеты в 2027 году, и выстройте диалог до этапа
-            тендера.
+          <p className="mt-5 max-w-lg font-body text-base leading-relaxed text-white/75 md:text-lg">
+            Круглый стол для коммерческих команд: узнайте, куда ТГУ направляет
+            ИТ-бюджеты в 2027 году, и выстройте диалог до этапа тендера.
           </p>
 
           <ul className="mt-8 space-y-3">
@@ -113,14 +112,14 @@ export default function Hero() {
           className="border border-white/10 bg-tgu-dark-elevated/80 p-6 md:p-8"
         >
           <p className="font-body text-xs font-semibold uppercase tracking-widest text-tgu-brand">
-            Параметры сессии
+            Параметры круглого стола
           </p>
 
           <div className="mt-6 space-y-4">
             <div className="flex gap-4 border-b border-white/10 pb-4">
               <Calendar className="h-5 w-5 shrink-0 text-tgu-brand" strokeWidth={1.75} aria-hidden />
               <div>
-                <p className="font-body text-sm text-white/50">Дата и время</p>
+                <p className="font-body text-sm text-white/65">Дата и время</p>
                 <p className="mt-0.5 font-body text-sm font-medium text-white">
                   {EVENT.dateLabel} · 10:00 (Томск)
                 </p>
@@ -130,18 +129,18 @@ export default function Hero() {
             <div className="flex gap-4 border-b border-white/10 pb-4">
               <MapPin className="h-5 w-5 shrink-0 text-tgu-brand" strokeWidth={1.75} aria-hidden />
               <div>
-                <p className="font-body text-sm text-white/50">Локация</p>
+                <p className="font-body text-sm text-white/65">Локация</p>
                 <p className="mt-0.5 font-body text-sm font-medium text-white">
                   {EVENT.venue}
                 </p>
-                <p className="font-body text-xs text-white/45">{EVENT.address}</p>
+                <p className="font-body text-xs text-white/60">{EVENT.address}</p>
               </div>
             </div>
 
             <div className="flex gap-4 border-b border-white/10 pb-4">
               <Monitor className="h-5 w-5 shrink-0 text-tgu-brand" strokeWidth={1.75} aria-hidden />
               <div>
-                <p className="font-body text-sm text-white/50">Формат</p>
+                <p className="font-body text-sm text-white/65">Формат</p>
                 <p className="mt-0.5 font-body text-sm font-medium text-white">
                   Очно + онлайн-трансляция
                 </p>
@@ -150,11 +149,11 @@ export default function Hero() {
 
             <div className="flex items-baseline justify-between gap-4 pt-1">
               <div>
-                <p className="font-body text-sm text-white/50">Участие</p>
+                <p className="font-body text-sm text-white/65">Участие</p>
                 <p className="mt-0.5 font-heading text-xl font-semibold text-white">
                   {EVENT.price}
                 </p>
-                <p className="font-body text-xs text-white/45">{EVENT.priceNote}</p>
+                <p className="font-body text-xs text-white/60">{EVENT.priceNote}</p>
               </div>
               <p className="text-right font-body text-xs text-tgu-warm">
                 Мест ограничено
@@ -163,7 +162,7 @@ export default function Hero() {
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-6">
-            <p className="mb-3 font-body text-xs text-white/50">До начала сессии</p>
+            <p className="mb-3 font-body text-xs text-white/65">До начала круглого стола</p>
             <CountdownTimer targetDate={EVENT.date} compact dark />
           </div>
         </motion.div>

@@ -7,24 +7,27 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { EVENT } from "@/data/event";
 
 const IN_PERSON = [
-  "Ауд. 209, Главный корпус ТГУ",
+  "Главный корпус ТГУ, пр. Ленина, 36",
   "Нетворкинг с коллегами отрасли",
   "Прямой диалог с ЛПР",
   "Кофе-пауза и неформальное общение",
 ];
 
 const ONLINE = [
-  "Прямая трансляция сессии",
+  "Прямая трансляция круглого стола",
   "Запись и материалы после мероприятия",
   "Чат Q&A в реальном времени",
   "Доступ для удалённой команды",
 ];
 
-function List({ items }: { items: string[] }) {
+function List({ items, light }: { items: string[]; light?: boolean }) {
   return (
     <ul className="mt-5 space-y-2.5">
       {items.map((item) => (
-        <li key={item} className="flex gap-2.5 font-body text-sm text-tgu-ink-secondary">
+        <li
+          key={item}
+          className={`flex gap-2.5 font-body text-sm ${light ? "text-white/75" : "text-tgu-ink-secondary"}`}
+        >
           <Check className="mt-0.5 h-4 w-4 shrink-0 text-tgu-brand" strokeWidth={2} aria-hidden />
           {item}
         </li>
@@ -40,7 +43,7 @@ export default function Formats() {
         <SectionTitle
           eyebrow="Форматы"
           title="Как участвовать"
-          subtitle="Выберите модель присутствия для вашей команды. Оба формата дают доступ к содержанию сессии и материалам."
+          subtitle="Выберите модель присутствия для вашей команды. Оба формата дают доступ к содержанию круглого стола и материалам."
           light
           accent
         />
@@ -51,10 +54,10 @@ export default function Formats() {
             <h3 className="mt-4 font-heading text-lg font-semibold text-white">
               Очное участие
             </h3>
-            <p className="mt-2 font-body text-sm text-white/55">
+            <p className="mt-2 font-body text-sm text-white/70">
               Рекомендуется для коммерческих директоров и аккаунт-лидов
             </p>
-            <List items={IN_PERSON} />
+            <List items={IN_PERSON} light />
           </article>
 
           <article className="border border-white/10 bg-tgu-dark-elevated p-7">
@@ -62,10 +65,10 @@ export default function Formats() {
             <h3 className="mt-4 font-heading text-lg font-semibold text-white">
               Онлайн-участие
             </h3>
-            <p className="mt-2 font-body text-sm text-white/55">
+            <p className="mt-2 font-body text-sm text-white/70">
               Для распределённых команд и технических специалистов
             </p>
-            <List items={ONLINE} />
+            <List items={ONLINE} light />
           </article>
         </div>
 
@@ -76,8 +79,8 @@ export default function Formats() {
               <p className="font-heading text-2xl font-semibold text-white md:text-3xl">
                 {EVENT.price}
               </p>
-              <p className="mt-1 font-body text-sm text-white/65">{EVENT.priceNote}</p>
-              <p className="mt-2 font-body text-xs text-white/45">
+              <p className="mt-1 font-body text-sm text-white/75">{EVENT.priceNote}</p>
+              <p className="mt-2 font-body text-xs text-white/60">
                 Одна квалифицированная встреча с ЛПР окупает годовой взнос
               </p>
             </div>
