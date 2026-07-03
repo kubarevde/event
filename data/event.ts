@@ -9,5 +9,7 @@ export const EVENT = {
   price: "10 000 ₽",
   priceNote: "участие · поступает в Эндаумент-фонд ТГУ",
   sessions: "2 круглых стола в год",
-  contactEmail: "digital@tsu.ru",
+  contactEmail: "ib@mail.tsu.ru",
+  fundUrl: "https://fond.tsu.ru/",
+  privacyPolicyUrl: "https://persona.tsu.ru/Content/documents/politika_pd.pdf",
 };

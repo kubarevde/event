@@ -80,9 +80,6 @@ export default function Formats() {
                 {EVENT.price}
               </p>
               <p className="mt-1 font-body text-sm text-white/75">{EVENT.priceNote}</p>
-              <p className="mt-2 font-body text-xs text-white/60">
-                Одна квалифицированная встреча с ЛПР окупает годовой взнос
-              </p>
             </div>
           </div>
           <Button

@@ -2,9 +2,16 @@ import LogoSlot from "@/components/ui/LogoSlot";
 import { EVENT } from "@/data/event";
 
 const LINKS = [
-  { label: "Политика обработки ПДн", href: "#" },
-  { label: "Согласие на обработку ПДн", href: "#" },
-  { label: "Эндаумент-фонд ТГУ", href: "#" },
+  {
+    label: "Политика обработки ПДн",
+    href: EVENT.privacyPolicyUrl,
+    external: true,
+  },
+  {
+    label: "Информация о Фонде",
+    href: EVENT.fundUrl,
+    external: true,
+  },
 ];
 
 export default function Footer() {
@@ -26,6 +33,9 @@ export default function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
+                    {...(link.external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
                     className="font-body text-sm text-tgu-muted transition-colors hover:text-white"
                   >
                     {link.label}
@@ -50,7 +60,17 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-col justify-between gap-2 border-t border-white/10 pt-8 font-body text-xs text-tgu-muted md:flex-row">
           <p>© 2026 Томский государственный университет</p>
-          <p>Взнос поступает в Эндаумент-фонд ТГУ</p>
+          <p>
+            Взнос поступает в{" "}
+            <a
+              href={EVENT.fundUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-white"
+            >
+              Эндаумент-фонд ТГУ
+            </a>
+          </p>
         </div>
       </div>
     </footer>

@@ -67,7 +67,16 @@ export default function Registration() {
               <Shield className="h-4 w-4 shrink-0 text-tgu-brand" strokeWidth={1.75} aria-hidden />
               <p className="font-body text-xs leading-relaxed text-white/65">
                 Подача заявки бесплатна. Мы связываемся только по деловым вопросам
-                участия. Данные обрабатываются в соответствии с политикой ТГУ.
+                участия. Данные обрабатываются в соответствии с{" "}
+                <a
+                  href={EVENT.privacyPolicyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-tgu-brand hover:underline"
+                >
+                  политикой обработки ПДн ТГУ
+                </a>
+                .
               </p>
             </div>
 
