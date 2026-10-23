@@ -43,12 +43,16 @@ export function writeVisitor(
   }
 }
 
+/** IP посетителя за WAF/прокси: заголовок из CLIENT_IP_HEADER или последний адрес X-Forwarded-For
+ *  (его добавляет ближайший прокси, подделать его клиент не может). */
 export function clientIp(req: NextRequest) {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
+  const custom = process.env.CLIENT_IP_HEADER;
+  if (custom) {
+    const v = req.headers.get(custom)?.split(",")[0]?.trim();
+    if (v) return v;
+  }
+  const xff = req.headers.get("x-forwarded-for");
+  return xff?.split(",").pop()?.trim() || req.headers.get("x-real-ip") || "unknown";
 }
 
 const buckets = new Map<string, number[]>();

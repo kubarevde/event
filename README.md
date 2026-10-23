@@ -16,23 +16,20 @@ Next.js 15 + Tailwind. Тексты, картинки, форма заявки �
 
 ## Установка на сервер (Docker)
 
-Нужен сервер с Docker (Ubuntu/Debian: `curl -fsSL https://get.docker.com | sh`) и домен,
-A-запись которого указывает на IP сервера. Порты 80 и 443 должны быть свободны.
-
-В комплекте два контейнера:
-- `app` — сайт и админка;
-- `caddy` — веб-сервер, который сам получает и продлевает HTTPS-сертификат.
+Нужен сервер с Docker (Ubuntu/Debian: `curl -fsSL https://get.docker.com | sh`).
+Сайт работает за WAF: WAF принимает HTTPS и выдаёт сертификат, а на сервер проксирует запросы
+по http на порт `APP_PORT` (по умолчанию 80). В WAF укажите IP сервера и этот порт.
 
 ### Вариант 1 — с GitHub (рекомендуется)
 
 ```bash
 git clone https://github.com/kubarevde/event.git && cd event
 cp .env.example .env
-nano .env                      # DOMAIN, ADMIN_PASSWORD, SESSION_SECRET
+nano .env                      # ADMIN_PASSWORD, SESSION_SECRET, при необходимости APP_PORT
 docker compose up -d --build
 ```
 
-Через минуту сайт откроется на `https://ваш-домен`, админка — на `https://ваш-домен/admin`.
+Сайт откроется на `https://ваш-домен` (через WAF), админка — на `https://ваш-домен/admin`.
 
 Обновление после изменений в репозитории:
 
@@ -56,6 +53,16 @@ docker load -i images.tar
 cp .env.example .env && nano .env
 docker compose up -d --no-build
 ```
+
+### Настройки для WAF
+
+- **Закройте порт от всех, кроме WAF**, иначе сайт можно открыть напрямую по IP в обход защиты.
+  Например, через ufw: `ufw allow from <IP-адреса WAF> to any port 80` (диапазоны IP даёт провайдер WAF).
+  Учтите, что Docker публикует порты в обход ufw, поэтому надёжнее ограничить доступ в фаерволе хостинга.
+- **Реальный IP посетителя.** Он нужен для лимитов на заявки и вход в админку. По умолчанию берётся
+  последний адрес из `X-Forwarded-For`. Если WAF передаёт IP в отдельном заголовке
+  (например `X-Real-IP`), укажите его в `.env`: `CLIENT_IP_HEADER=X-Real-IP`.
+- `INSECURE_COOKIES` оставьте пустым: посетители заходят по https через WAF.
 
 ### Данные и бэкапы
 
@@ -81,8 +88,8 @@ docker compose logs -f app     # логи сайта
 docker compose restart app     # перезапуск после правки .env
 ```
 
-Если домена пока нет: в `.env` укажите `DOMAIN=:80` и `INSECURE_COOKIES=1`,
-тогда сайт будет доступен по `http://IP-сервера`.
+Чтобы проверить сайт напрямую по `http://IP-сервера` без WAF, временно задайте `INSECURE_COOKIES=1`,
+иначе браузер не сохранит вход в админку.
 
 ## Локальная разработка
 
