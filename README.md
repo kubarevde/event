@@ -17,8 +17,9 @@ Next.js 15 + Tailwind. Тексты, картинки, форма заявки �
 ## Установка на сервер (Docker)
 
 Нужен сервер с Docker (Ubuntu/Debian: `curl -fsSL https://get.docker.com | sh`).
-Сайт работает за WAF: WAF принимает HTTPS и выдаёт сертификат, а на сервер проксирует запросы
-по http на порт `APP_PORT` (по умолчанию 80). В WAF укажите IP сервера и этот порт.
+Схема: посетитель → WAF (HTTPS, сертификат) → nginx на сервере → контейнер.
+Контейнер слушает только `127.0.0.1:3001` (`APP_BIND`, `APP_PORT` в `.env`),
+поэтому напрямую снаружи сайт не открыть — только через nginx.
 
 ### Вариант 1 — с GitHub (рекомендуется)
 
@@ -54,15 +55,33 @@ cp .env.example .env && nano .env
 docker compose up -d --no-build
 ```
 
-### Настройки для WAF
+### nginx на сервере
 
-- **Закройте порт от всех, кроме WAF**, иначе сайт можно открыть напрямую по IP в обход защиты.
-  Например, через ufw: `ufw allow from <IP-адреса WAF> to any port 80` (диапазоны IP даёт провайдер WAF).
-  Учтите, что Docker публикует порты в обход ufw, поэтому надёжнее ограничить доступ в фаерволе хостинга.
-- **Реальный IP посетителя.** Он нужен для лимитов на заявки и вход в админку. По умолчанию берётся
-  последний адрес из `X-Forwarded-For`. Если WAF передаёт IP в отдельном заголовке
-  (например `X-Real-IP`), укажите его в `.env`: `CLIENT_IP_HEADER=X-Real-IP`.
-- `INSECURE_COOKIES` оставьте пустым: посетители заходят по https через WAF.
+```nginx
+server {
+    listen 80;
+    server_name ваш-домен;
+
+    # Реальный IP посетителя из заголовка WAF (адреса WAF — у провайдера WAF)
+    set_real_ip_from <диапазон IP WAF>;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
+
+    client_max_body_size 12m;   # загрузка картинок в админке (до 10 МБ)
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+Реальный IP нужен для лимитов на заявки и вход в админку: сайт берёт его из заголовка
+`CLIENT_IP_HEADER` (по умолчанию `X-Real-IP`, его выставляет nginx выше).
+`INSECURE_COOKIES` оставьте пустым: посетители заходят по https через WAF.
 
 ### Данные и бэкапы
 
@@ -88,7 +107,7 @@ docker compose logs -f app     # логи сайта
 docker compose restart app     # перезапуск после правки .env
 ```
 
-Чтобы проверить сайт напрямую по `http://IP-сервера` без WAF, временно задайте `INSECURE_COOKIES=1`,
+Чтобы проверить сайт по http без WAF, временно задайте `INSECURE_COOKIES=1`,
 иначе браузер не сохранит вход в админку.
 
 ## Локальная разработка

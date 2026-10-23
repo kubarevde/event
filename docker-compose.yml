@@ -1,6 +1,6 @@
 # Запуск: docker compose up -d --build
 # Настройки — в файле .env рядом (образец: .env.example)
-# HTTPS и сертификат обеспечивает WAF; сюда он проксирует запросы по http на APP_PORT.
+# Сайт слушает только localhost (APP_BIND:APP_PORT); снаружи его отдаёт nginx на сервере за WAF.
 
 services:
   app:
@@ -11,7 +11,7 @@ services:
     environment:
       DATA_DIR: /app/storage
     ports:
-      - "${APP_PORT:-80}:3000"
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3001}:3000"
     volumes:
       - site-data:/app/storage
 
