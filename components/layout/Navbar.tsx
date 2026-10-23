@@ -5,16 +5,16 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import LogoSlot from "@/components/ui/LogoSlot";
+import type { SiteContent } from "@/lib/content";
+import { scrollToSection } from "@/lib/track";
 
-const NAV_LINKS = [
-  { label: "Зачем участвовать", href: "#why" },
-  { label: "Что получите", href: "#value" },
-  { label: "Направления", href: "#directions" },
-  { label: "Форматы", href: "#formats" },
-  { label: "Спикеры", href: "#speakers" },
-];
+interface NavbarProps {
+  nav: SiteContent["nav"];
+  theme: SiteContent["theme"];
+  showCta: boolean;
+}
 
-export default function Navbar() {
+export default function Navbar({ nav, theme, showCta }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { scrollYProgress } = useScroll();
@@ -26,8 +26,8 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navigate = (href: string) => {
-    document.getElementById(href.replace("#", ""))?.scrollIntoView({ behavior: "smooth" });
+  const navigate = (target: string, label?: string) => {
+    scrollToSection(target, label);
     setMobileOpen(false);
   };
 
@@ -53,18 +53,18 @@ export default function Navbar() {
             href="#hero"
             onClick={(e) => {
               e.preventDefault();
-              navigate("#hero");
+              navigate("hero");
             }}
           >
-            <LogoSlot size="header" />
+            <LogoSlot src={theme.logo} alt={theme.logoAlt} size="header" />
           </a>
 
           <div className="hidden items-center gap-7 lg:flex">
-            {NAV_LINKS.map((link) => (
+            {nav.links.map((link) => (
               <button
                 key={link.label}
                 type="button"
-                onClick={() => navigate(link.href)}
+                onClick={() => navigate(link.target)}
                 className="font-body text-sm text-white/70 transition-colors hover:text-white"
               >
                 {link.label}
@@ -73,21 +73,21 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => navigate("#registration")}
-            >
-              Подать заявку
-            </Button>
-            <button
-              type="button"
-              className="p-2 text-white lg:hidden"
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "Закрыть меню" : "Меню"}
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            {showCta && (
+              <Button variant="primary" size="sm" onClick={() => navigate("registration", nav.ctaLabel)}>
+                {nav.ctaLabel}
+              </Button>
+            )}
+            {nav.links.length > 0 && (
+              <button
+                type="button"
+                className="p-2 text-white lg:hidden"
+                onClick={() => setMobileOpen((v) => !v)}
+                aria-label={mobileOpen ? "Закрыть меню" : "Меню"}
+              >
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            )}
           </div>
         </nav>
 
@@ -101,11 +101,11 @@ export default function Navbar() {
               className="overflow-hidden border-t border-white/10 bg-tgu-dark lg:hidden"
             >
               <div className="flex flex-col gap-1 px-5 py-3">
-                {NAV_LINKS.map((link) => (
+                {nav.links.map((link) => (
                   <button
                     key={link.label}
                     type="button"
-                    onClick={() => navigate(link.href)}
+                    onClick={() => navigate(link.target)}
                     className="py-2.5 text-left font-body text-sm text-white/80"
                   >
                     {link.label}

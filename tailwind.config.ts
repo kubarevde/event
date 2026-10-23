@@ -8,15 +8,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "tgu-brand": "#0072BC",
-        "tgu-brand-dark": "#005A96",
-        "tgu-brand-light": "#E8F4FC",
+        // Фирменные цвета задаются в админке и приходят CSS-переменными (см. app/layout.tsx)
+        "tgu-brand": "rgb(var(--brand) / <alpha-value>)",
+        "tgu-brand-dark": "rgb(var(--brand-dark) / <alpha-value>)",
+        "tgu-brand-light": "rgb(var(--brand-light) / <alpha-value>)",
         "tgu-dark": "#0A1628",
         "tgu-dark-elevated": "#122033",
         "tgu-mid": "#1A2D42",
         "tgu-light": "#F8FAFC",
         "tgu-surface": "#FFFFFF",
-        "tgu-accent": "#0072BC",
         "tgu-text": "#F1F5F9",
         "tgu-muted": "#94A3B8",
         "tgu-dark-text": "#0F1724",

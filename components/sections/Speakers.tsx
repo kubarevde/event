@@ -1,22 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useState } from "react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import SectionTitle from "@/components/ui/SectionTitle";
-import { SPEAKERS, Speaker } from "@/data/speakers";
+import type { SiteContent } from "@/lib/content";
+
+type Speaker = SiteContent["speakers"]["items"][number];
+
+function initials(name: string) {
+  return name.trim().charAt(0).toUpperCase();
+}
 
 function SpeakerAvatar({ speaker }: { speaker: Speaker }) {
   const [err, setErr] = useState(false);
 
-  if (speaker.avatar && !err) {
+  if (speaker.photo && !err) {
     return (
-      <Image
-        src={speaker.avatar}
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={speaker.photo}
         alt={speaker.name}
-        width={400}
-        height={480}
+        loading="lazy"
         className="h-full w-full object-cover object-[center_18%]"
         onError={() => setErr(true)}
       />
@@ -25,21 +30,16 @@ function SpeakerAvatar({ speaker }: { speaker: Speaker }) {
 
   return (
     <div className="flex h-full w-full items-center justify-center bg-tgu-brand-light font-heading text-3xl font-semibold text-tgu-brand">
-      {speaker.initials}
+      {initials(speaker.name)}
     </div>
   );
 }
 
-export default function Speakers() {
+export default function Speakers({ speakers }: { speakers: SiteContent["speakers"] }) {
   return (
     <AnimatedSection id="speakers" className="bg-tgu-light py-20 md:py-24">
       <div className="mx-auto max-w-7xl px-5 md:px-6">
-        <SectionTitle
-          eyebrow="Представители ТГУ"
-          title="Люди, которые принимают решения"
-          subtitle="Говорите напрямую с теми, кто определяет цифровую повестку университета."
-          accent
-        />
+        <SectionTitle eyebrow={speakers.eyebrow} title={speakers.title} subtitle={speakers.subtitle} accent />
 
         <motion.div
           initial="hidden"
@@ -51,9 +51,9 @@ export default function Speakers() {
           }}
           className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:gap-5"
         >
-          {SPEAKERS.map((speaker) => (
+          {speakers.items.map((speaker, i) => (
             <motion.article
-              key={speaker.id}
+              key={`${speaker.name}-${i}`}
               variants={{
                 hidden: { opacity: 0, y: 10 },
                 show: { opacity: 1, y: 0 },
@@ -67,9 +67,7 @@ export default function Speakers() {
                 {speaker.name}
               </h3>
               {speaker.role && (
-                <p className="mt-2 font-body text-xs leading-relaxed text-tgu-ink-secondary">
-                  {speaker.role}
-                </p>
+                <p className="mt-2 font-body text-xs leading-relaxed text-tgu-ink-secondary">{speaker.role}</p>
               )}
             </motion.article>
           ))}

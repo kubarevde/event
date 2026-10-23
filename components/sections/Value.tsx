@@ -5,44 +5,27 @@ import { ArrowRight, Check } from "lucide-react";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import Button from "@/components/ui/Button";
 import SectionTitle from "@/components/ui/SectionTitle";
+import type { SiteContent } from "@/lib/content";
+import { scrollToSection } from "@/lib/track";
 
-const BENEFITS = [
-  "Возможность предложить собственные продукты и решения напрямую команде цифровой трансформации ТГУ",
-  "10-минутный временной слот для представления вашей компании и ключевых кейсов",
-  "Технологический роадмэп ТГУ на 2027 — конкретные задачи и направления закупок",
-  "Прямой диалог с представителями цифровой повестки ТГУ",
-  "Понимание бюджетных приоритетов до выхода тендерной документации",
-  "Запись круглого стола и презентационные материалы для вашей команды",
-];
-
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-}
-
-export default function Value() {
+export default function Value({ value, showCta }: { value: SiteContent["value"]; showCta: boolean }) {
   return (
     <AnimatedSection id="value" className="bg-tgu-light py-20 md:py-24">
       <div className="mx-auto max-w-7xl px-5 md:px-6">
         <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <SectionTitle
-              eyebrow="Результат участия"
-              title="Что получает ваша компания"
-              subtitle="Не networking ради networking — а реальный слот для презентации, прямой диалог с ЛПР и понимание приоритетов закупок одного из крупнейших вузов страны."
-              accent
-              align="left"
-            />
-            <blockquote className="mt-2 border-l-2 border-tgu-brand pl-5 font-heading text-xl font-semibold leading-snug text-tgu-dark-text md:text-2xl">
-              Закупки 2027 начинаются с разговора, а не с протокола
-            </blockquote>
-            <Button
-              variant="primary"
-              className="mt-8"
-              onClick={() => scrollTo("registration")}
-            >
-              Оставить заявку
-              <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
-            </Button>
+            <SectionTitle eyebrow={value.eyebrow} title={value.title} subtitle={value.subtitle} accent align="left" />
+            {value.quote && (
+              <blockquote className="mt-2 border-l-2 border-tgu-brand pl-5 font-heading text-xl font-semibold leading-snug text-tgu-dark-text md:text-2xl">
+                {value.quote}
+              </blockquote>
+            )}
+            {showCta && value.ctaLabel && (
+              <Button variant="primary" className="mt-8" onClick={() => scrollToSection("registration", value.ctaLabel)}>
+                {value.ctaLabel}
+                <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+              </Button>
+            )}
           </div>
 
           <motion.ul
@@ -55,7 +38,7 @@ export default function Value() {
             }}
             className="divide-y divide-tgu-border border border-tgu-border bg-tgu-surface"
           >
-            {BENEFITS.map((text) => (
+            {value.benefits.map((text) => (
               <motion.li
                 key={text}
                 variants={{
@@ -64,14 +47,8 @@ export default function Value() {
                 }}
                 className="flex gap-4 p-5"
               >
-                <Check
-                  className="mt-0.5 h-4 w-4 shrink-0 text-tgu-brand"
-                  strokeWidth={2}
-                  aria-hidden
-                />
-                <span className="font-body text-sm leading-relaxed text-tgu-dark-text">
-                  {text}
-                </span>
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-tgu-brand" strokeWidth={2} aria-hidden />
+                <span className="font-body text-sm leading-relaxed text-tgu-dark-text">{text}</span>
               </motion.li>
             ))}
           </motion.ul>

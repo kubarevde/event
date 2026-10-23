@@ -2,43 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand: 0 114 188;
+  --brand-dark: 0 90 150;
+  --brand-light: 232 244 252;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 88px;
 }
 
 ::selection {
-  background: #0072bc33;
+  background: rgb(var(--brand) / 0.2);
 }
 
 @layer base {
   body {
     @apply text-tgu-dark-text antialiased;
-  }
-}
-
-@layer components {
-  .yandex-form-embed {
-    --ya-footer-clip: 58px;
-    position: relative;
-    max-width: 650px;
-    overflow: hidden;
-  }
-
-  @media (max-width: 1000px) {
-    .yandex-form-embed {
-      /* Footer_branded: column layout, logo + links */
-      --ya-footer-clip: 96px;
-    }
-  }
-
-  .yandex-form-embed__frame {
-    display: block;
-    width: 100%;
-    min-height: 420px;
-    margin-bottom: calc(-1 * var(--ya-footer-clip));
-    border: 0;
-    background-color: #122033;
-    color-scheme: dark;
   }
 }

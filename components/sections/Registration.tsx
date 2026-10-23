@@ -1,44 +1,62 @@
 "use client";
 
-import {
-  CalendarPlus,
-  Check,
-  Shield,
-} from "lucide-react";
+import { CalendarPlus, Check, Shield } from "lucide-react";
 import Button from "@/components/ui/Button";
 import CountdownTimer from "@/components/ui/CountdownTimer";
+import DynamicForm from "@/components/ui/DynamicForm";
 import SectionTitle from "@/components/ui/SectionTitle";
-import YandexFormEmbed from "@/components/ui/YandexFormEmbed";
-import { EVENT } from "@/data/event";
-const OFFER_ITEMS = [
-  "Доступ к закрытому круглому столу и материалам",
-  "Подтверждение заявки за 1 рабочий день",
-  "Оплата только после согласования участия",
-  "Запись и презентации для вашей команды",
-];
+import type { SiteContent } from "@/lib/content";
+import type { FormSchema } from "@/lib/forms";
 
-const ICS = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-SUMMARY:Цифра ТГУ: роадмэп, закупки и приоритеты 2027
-DTSTART:20261014T030000Z
-DTEND:20261014T070000Z
-LOCATION:Главный корпус ТГУ, пр. Ленина 36, Томск
-DESCRIPTION:Круглый стол для ИТ-вендоров ТГУ
-END:VEVENT
-END:VCALENDAR`;
+interface RegistrationProps {
+  registration: SiteContent["registration"];
+  event: SiteContent["event"];
+  countdownLabel: string;
+  startIso: string;
+  endIso: string;
+  form: { id: string; schema: FormSchema } | null;
+}
 
-function downloadCalendar() {
-  const blob = new Blob([ICS], { type: "text/calendar;charset=utf-8" });
+function icsDate(iso: string) {
+  return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
+function icsEscape(s: string) {
+  return s.replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
+}
+
+function downloadCalendar(event: SiteContent["event"], startIso: string, endIso: string) {
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//event-landing//RU",
+    "BEGIN:VEVENT",
+    `UID:${icsDate(startIso)}-${encodeURIComponent(event.title).slice(0, 40)}@event`,
+    `DTSTAMP:${icsDate(new Date().toISOString())}`,
+    `SUMMARY:${icsEscape(event.title)}`,
+    `DTSTART:${icsDate(startIso)}`,
+    `DTEND:${icsDate(endIso)}`,
+    `LOCATION:${icsEscape(`${event.venue}, ${event.address}`)}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "tgu-digital-2026.ics";
+  a.download = "event.ics";
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export default function Registration() {
+export default function Registration({
+  registration,
+  event,
+  countdownLabel,
+  startIso,
+  endIso,
+  form,
+}: RegistrationProps) {
   return (
     <section id="registration" className="relative bg-tgu-dark py-20 md:py-28">
       <div className="absolute inset-x-0 top-0 h-px bg-tgu-brand" aria-hidden />
@@ -46,16 +64,16 @@ export default function Registration() {
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>
             <SectionTitle
-              eyebrow="Регистрация"
-              title="Забронируйте место за круглым столом"
-              subtitle="Следующий круглый стол — 14 октября 2026. Количество участников ограничено для сохранения формата закрытого диалога."
+              eyebrow={registration.eyebrow}
+              title={registration.title}
+              subtitle={registration.subtitle}
               light
               accent
               align="left"
             />
 
             <ul className="space-y-3">
-              {OFFER_ITEMS.map((text) => (
+              {registration.offerItems.map((text) => (
                 <li key={text} className="flex items-start gap-2.5">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-tgu-brand" strokeWidth={2} aria-hidden />
                   <span className="font-body text-sm text-white/75">{text}</span>
@@ -63,45 +81,56 @@ export default function Registration() {
               ))}
             </ul>
 
-            <div className="mt-8 flex items-start gap-3 border border-white/10 p-4">
-              <Shield className="h-4 w-4 shrink-0 text-tgu-brand" strokeWidth={1.75} aria-hidden />
-              <p className="font-body text-xs leading-relaxed text-white/65">
-                Подача заявки бесплатна. Мы связываемся только по деловым вопросам
-                участия. Данные обрабатываются в соответствии с{" "}
-                <a
-                  href={EVENT.privacyPolicyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-tgu-brand hover:underline"
-                >
-                  политикой обработки ПДн ТГУ
-                </a>
-                .
-              </p>
-            </div>
+            {registration.privacyNote && (
+              <div className="mt-8 flex items-start gap-3 border border-white/10 p-4">
+                <Shield className="h-4 w-4 shrink-0 text-tgu-brand" strokeWidth={1.75} aria-hidden />
+                <p className="font-body text-xs leading-relaxed text-white/65">
+                  {registration.privacyNote}{" "}
+                  {registration.privacyLinkLabel && event.privacyPolicyUrl && (
+                    <>
+                      <a
+                        href={event.privacyPolicyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-tgu-brand hover:underline"
+                      >
+                        {registration.privacyLinkLabel}
+                      </a>
+                      .
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
 
-            <Button
-              variant="outline"
-              className="mt-6 border-white/30 text-white hover:bg-white/5"
-              onClick={downloadCalendar}
-            >
-              <CalendarPlus className="mr-2 h-4 w-4" aria-hidden />
-              Добавить в календарь
-            </Button>
+            {registration.calendarLabel && (
+              <Button
+                variant="outline"
+                className="mt-6 border-white/30 text-white hover:bg-white/5"
+                onClick={() => downloadCalendar(event, startIso, endIso)}
+              >
+                <CalendarPlus className="mr-2 h-4 w-4" aria-hidden />
+                {registration.calendarLabel}
+              </Button>
+            )}
 
             <div className="mt-8">
-              <p className="mb-3 font-body text-xs text-white/65">До начала круглого стола</p>
-              <CountdownTimer targetDate={EVENT.date} compact dark />
+              <p className="mb-3 font-body text-xs text-white/65">{countdownLabel}</p>
+              <CountdownTimer targetDate={startIso} compact dark />
             </div>
           </div>
 
           <div className="border border-white/10 bg-tgu-dark-elevated/80 p-6 md:p-8">
             <p className="font-body text-xs font-semibold uppercase tracking-widest text-tgu-brand">
-              Заявка на участие
+              {registration.formTitle}
             </p>
 
             <div className="mt-6 border-t border-white/10 pt-6">
-              <YandexFormEmbed />
+              {form ? (
+                <DynamicForm formId={form.id} schema={form.schema} />
+              ) : (
+                <p className="font-body text-sm text-white/65">Приём заявок временно закрыт.</p>
+              )}
             </div>
           </div>
         </div>
