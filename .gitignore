@@ -25,6 +25,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -35,3 +36,6 @@ next-env.d.ts
 
 # данные сайта (база и загрузки)
 /storage
+/backups
+/event-bundle.tar.gz
+/dist

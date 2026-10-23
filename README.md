@@ -14,31 +14,85 @@ Next.js 15 + Tailwind. Тексты, картинки, форма заявки �
 Статистика собирается самим сайтом (без Яндекс.Метрики и внешних счётчиков): боты и залогиненный администратор не учитываются.
 Защита формы от спама: скрытое поле-ловушка, проверка скорости заполнения и лимит заявок с одного IP.
 
-## Запуск
+## Установка на сервер (Docker)
+
+Нужен сервер с Docker (Ubuntu/Debian: `curl -fsSL https://get.docker.com | sh`) и домен,
+A-запись которого указывает на IP сервера. Порты 80 и 443 должны быть свободны.
+
+В комплекте два контейнера:
+- `app` — сайт и админка;
+- `caddy` — веб-сервер, который сам получает и продлевает HTTPS-сертификат.
+
+### Вариант 1 — с GitHub (рекомендуется)
 
 ```bash
-cp .env.local.example .env.local   # задайте ADMIN_PASSWORD
+git clone https://github.com/kubarevde/event.git && cd event
+cp .env.example .env
+nano .env                      # DOMAIN, ADMIN_PASSWORD, SESSION_SECRET
+docker compose up -d --build
+```
+
+Через минуту сайт откроется на `https://ваш-домен`, админка — на `https://ваш-домен/admin`.
+
+Обновление после изменений в репозитории:
+
+```bash
+cd event && git pull && docker compose up -d --build
+```
+
+### Вариант 2 — готовый архив (сервер без доступа к GitHub)
+
+На любой машине с Docker и этим репозиторием:
+
+```bash
+./deploy/make-bundle.sh        # создаст event-bundle.tar.gz (сервер на ARM: PLATFORM=linux/arm64)
+```
+
+Скопируйте архив на сервер и там:
+
+```bash
+tar -xzf event-bundle.tar.gz && cd event
+docker load -i images.tar
+cp .env.example .env && nano .env
+docker compose up -d --no-build
+```
+
+### Данные и бэкапы
+
+База (контент, заявки, статистика) и загруженные картинки лежат в Docker-томе `site-data`.
+Он переживает перезапуски и обновления. **Не запускайте `docker compose down -v`**: флаг `-v` удалит данные.
+
+```bash
+./deploy/backup.sh                              # → backups/site-ДАТА.tar.gz, сайт не останавливается
+./deploy/restore.sh backups/site-ДАТА.tar.gz    # восстановление
+```
+
+Ежедневный бэкап через cron (`crontab -e`):
+
+```
+0 3 * * * cd /root/event && ./deploy/backup.sh >/dev/null 2>&1
+```
+
+### Полезные команды
+
+```bash
+docker compose ps              # состояние контейнеров
+docker compose logs -f app     # логи сайта
+docker compose restart app     # перезапуск после правки .env
+```
+
+Если домена пока нет: в `.env` укажите `DOMAIN=:80` и `INSECURE_COOKIES=1`,
+тогда сайт будет доступен по `http://IP-сервера`.
+
+## Локальная разработка
+
+```bash
+cp .env.example .env.local     # достаточно ADMIN_PASSWORD
 npm install
-npm run dev                        # http://localhost:3000, админка — /admin
+npm run dev                    # http://localhost:3000, админка — /admin
 ```
 
-Продакшен:
-
-```bash
-npm run build
-npm start                          # порт 3000, PORT=... чтобы сменить
-```
-
-При первом запуске создаются база `storage/site.db` с текущим контентом и форма заявки по умолчанию.
-
-## Деплой
-
-Нужен сервер с Node.js 20+ (VPS, Docker и т.п.). Статический хостинг и Vercel не подойдут:
-данные хранятся в SQLite-файле на диске.
-
-- Папку `storage/` (или `DATA_DIR`) **сохраняйте между деплоями и бэкапьте** — там база с контентом, заявками, статистикой и загруженные картинки.
-- Сайт должен работать по https (иначе задайте `INSECURE_COOKIES=1`).
-- За nginx передавайте `X-Forwarded-For`, чтобы лимиты по IP работали корректно.
+Данные при этом хранятся в папке `storage/`.
 
 ## Как сделать новый сайт на этой основе
 

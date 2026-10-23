@@ -3,7 +3,8 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
-  // output: 'export', // раскомментируй для статического хостинга без Node.js
+  // Самодостаточная сборка для Docker (см. Dockerfile)
+  output: "standalone",
 };
 
 export default nextConfig;

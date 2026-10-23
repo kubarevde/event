@@ -1,0 +1,36 @@
+# Запуск: docker compose up -d --build
+# Настройки — в файле .env рядом (образец: .env.example)
+
+services:
+  app:
+    build: .
+    image: event-landing:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /app/storage
+    volumes:
+      - site-data:/app/storage
+    expose:
+      - "3000"
+
+  # Веб-сервер с автоматическим HTTPS-сертификатом (Let's Encrypt)
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  site-data:     # база, заявки, статистика, загруженные картинки — БЭКАПИТЬ
+  caddy-data:    # HTTPS-сертификаты
+  caddy-config:
