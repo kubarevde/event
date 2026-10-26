@@ -54,12 +54,15 @@ export function recordEvent(e: {
   utmCampaign: string | null;
   ua: string;
   meta?: string | null;
+  country?: string | null;
+  region?: string | null;
+  city?: string | null;
 }) {
   const { device, browser, os } = parseUserAgent(e.ua);
   getDb()
     .prepare(
-      `INSERT INTO events (ts, type, path, visitor_id, session_id, referrer_host, utm_source, utm_medium, utm_campaign, device, browser, os, meta)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO events (ts, type, path, visitor_id, session_id, referrer_host, utm_source, utm_medium, utm_campaign, device, browser, os, meta, country, region, city)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       Date.now(),
@@ -74,7 +77,10 @@ export function recordEvent(e: {
       device,
       browser,
       os,
-      e.meta ?? null
+      e.meta ?? null,
+      e.country ?? null,
+      e.region ?? null,
+      e.city ?? null
     );
 }
 
@@ -90,6 +96,12 @@ export interface DayStat {
 export interface Breakdown {
   label: string;
   value: number;
+}
+
+export interface GeoRow {
+  label: string;
+  visitors: number;
+  submissions: number;
 }
 
 export interface Stats {
@@ -108,6 +120,9 @@ export interface Stats {
   devices: Breakdown[];
   browsers: Breakdown[];
   os: Breakdown[];
+  countries: Breakdown[];
+  regions: Breakdown[];
+  cities: GeoRow[];
   hours: number[];
 }
 
@@ -184,7 +199,41 @@ export function getStats(from: number, to: number, offsetMin: number): Stats {
   const hours = Array.from({ length: 24 }, () => 0);
   for (const r of hoursRows) hours[r.h] = r.n;
 
+  const subsBy = (column: string) =>
+    new Map(
+      (
+        db
+          .prepare(
+            `SELECT ${column} AS label, COUNT(*) AS n FROM submissions
+             WHERE created_at >= ? AND created_at < ? AND ${column} IS NOT NULL GROUP BY label`
+          )
+          .all(...range) as { label: string; n: number }[]
+      ).map((r) => [r.label, r.n])
+    );
+  const citySubs = subsBy("city");
+  const cities: GeoRow[] = (
+    db
+      .prepare(
+        `SELECT city AS label, COUNT(DISTINCT visitor_id) AS visitors FROM events
+         WHERE type = 'pageview' AND ts >= ? AND ts < ? AND city IS NOT NULL
+         GROUP BY label ORDER BY visitors DESC LIMIT 15`
+      )
+      .all(...range) as { label: string; visitors: number }[]
+  ).map((r) => ({ ...r, submissions: citySubs.get(r.label) ?? 0 }));
+
+  const geoBreakdown = (column: string) =>
+    db
+      .prepare(
+        `SELECT ${column} AS label, COUNT(DISTINCT visitor_id) AS value FROM events
+         WHERE type = 'pageview' AND ts >= ? AND ts < ? AND ${column} IS NOT NULL
+         GROUP BY label ORDER BY value DESC LIMIT 10`
+      )
+      .all(...range) as Breakdown[];
+
   return {
+    countries: geoBreakdown("country"),
+    regions: geoBreakdown("region"),
+    cities,
     totals: {
       pageviews: count("pageview"),
       visitors: count("pageview", "visitor_id"),

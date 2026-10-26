@@ -28,6 +28,7 @@ export default async function SubmissionsPage({ searchParams }: { searchParams: 
     source: [s.utmSource && `utm: ${[s.utmSource, s.utmMedium, s.utmCampaign].filter(Boolean).join(" / ")}`, s.referrerHost]
       .filter(Boolean)
       .join(" · "),
+    geo: [s.city, s.region !== s.city ? s.region : null, s.country].filter(Boolean).join(", "),
   }));
 
   return (

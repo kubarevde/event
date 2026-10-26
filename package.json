@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ip-location-db/dbip-city-mmdb": "^2.3.2026060513",
     "better-sqlite3": "^13.0.3",
     "framer-motion": "^11",
     "lucide-react": "^0.400",
+    "maxmind": "^5.0.7",
     "next": "15",
     "react": "^18",
     "react-dom": "^18",

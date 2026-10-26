@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   for (const f of forms) for (const field of f.schema.fields) if (!columns.has(field.id)) columns.set(field.id, field.label);
 
   const rows = listSubmissions({ formId, status, from: range?.from, to: range?.to });
-  const header = ["№", "Дата", "Форма", "Статус", ...columns.values(), "Комментарий менеджера", "utm_source", "utm_medium", "utm_campaign", "Источник перехода"];
+  const header = ["№", "Дата", "Форма", "Статус", ...columns.values(), "Комментарий менеджера", "utm_source", "utm_medium", "utm_campaign", "Источник перехода", "Город", "Регион", "Страна"];
   const body = rows.map((s) => [
     s.id,
     formatDateTime(s.createdAt, utcOffset),
@@ -36,6 +36,9 @@ export async function GET(req: NextRequest) {
     s.utmMedium,
     s.utmCampaign,
     s.referrerHost,
+    s.city,
+    s.region,
+    s.country,
   ]);
   const date = new Date().toISOString().slice(0, 10);
   return csvResponse(`zayavki-${date}.csv`, [header, ...body]);

@@ -89,6 +89,9 @@ export interface Submission {
   utmMedium: string | null;
   utmCampaign: string | null;
   referrerHost: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
   createdAt: number;
 }
 
@@ -102,6 +105,9 @@ type SubmissionRow = {
   utm_medium: string | null;
   utm_campaign: string | null;
   referrer_host: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
   created_at: number;
 };
 
@@ -116,6 +122,9 @@ function toSubmission(row: SubmissionRow): Submission {
     utmMedium: row.utm_medium,
     utmCampaign: row.utm_campaign,
     referrerHost: row.referrer_host,
+    country: row.country,
+    region: row.region,
+    city: row.city,
     createdAt: row.created_at,
   };
 }
@@ -151,11 +160,14 @@ export function createSubmission(input: {
   utmMedium: string | null;
   utmCampaign: string | null;
   referrerHost: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
 }) {
   getDb()
     .prepare(
-      `INSERT INTO submissions (form_id, data, visitor_id, utm_source, utm_medium, utm_campaign, referrer_host, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO submissions (form_id, data, visitor_id, utm_source, utm_medium, utm_campaign, referrer_host, country, region, city, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       input.formId,
@@ -165,6 +177,9 @@ export function createSubmission(input: {
       input.utmMedium,
       input.utmCampaign,
       input.referrerHost,
+      input.country,
+      input.region,
+      input.city,
       Date.now()
     );
 }

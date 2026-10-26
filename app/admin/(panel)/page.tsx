@@ -104,6 +104,45 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
         </Card>
       </div>
 
+      <div className="mt-6 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <Card title="Города" className="xl:col-span-1">
+          {s.cities.length === 0 ? (
+            <p className="py-4 text-sm text-slate-400">Нет данных. Город определяется по IP посетителя.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-500">
+                  <th className="pb-2 font-medium">Город</th>
+                  <th className="pb-2 text-right font-medium">Посетители</th>
+                  <th className="pb-2 text-right font-medium">Заявки</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {s.cities.map((c) => (
+                  <tr key={c.label}>
+                    <td className="py-1.5 text-slate-700">{c.label}</td>
+                    <td className="py-1.5 text-right tabular-nums text-slate-900">{c.visitors}</td>
+                    <td className="py-1.5 text-right tabular-nums text-slate-900">{c.submissions || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Card>
+        <Card title="Регионы">
+          <BarList items={s.regions} empty="Нет данных" />
+        </Card>
+        <Card title="Страны">
+          <BarList items={s.countries} empty="Нет данных" />
+        </Card>
+      </div>
+      <p className="mt-2 text-xs text-slate-400">
+        Город и регион определяются по IP (точность по городу около 70–80%). IP-адреса не сохраняются.{" "}
+        <a href="https://db-ip.com" target="_blank" rel="noopener noreferrer" className="underline">
+          IP Geolocation by DB-IP
+        </a>
+      </p>
+
       <Card title="Активность по часам (время площадки)" className="mt-6">
         <HourStrip hours={s.hours} />
       </Card>

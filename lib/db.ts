@@ -51,6 +51,12 @@ const MIGRATIONS = [
    );
    CREATE INDEX events_ts ON events(ts);
    CREATE INDEX events_type_ts ON events(type, ts);`,
+  `ALTER TABLE events ADD COLUMN country TEXT;
+   ALTER TABLE events ADD COLUMN region TEXT;
+   ALTER TABLE events ADD COLUMN city TEXT;
+   ALTER TABLE submissions ADD COLUMN country TEXT;
+   ALTER TABLE submissions ADD COLUMN region TEXT;
+   ALTER TABLE submissions ADD COLUMN city TEXT;`,
 ];
 
 function open() {

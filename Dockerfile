@@ -22,11 +22,14 @@ ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
-    DATA_DIR=/app/storage
+    DATA_DIR=/app/storage \
+    GEOIP_DIR=/app/geoip
 
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+# Офлайн-база городов по IP (DB-IP Lite, CC BY 4.0) — standalone-сборка её не подхватывает сама
+COPY --from=deps --chown=node:node /app/node_modules/@ip-location-db/dbip-city-mmdb ./geoip
 RUN mkdir -p /app/storage && chown node:node /app/storage
 
 USER node

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isBot, recordEvent } from "@/lib/analytics";
 import { validateSubmission } from "@/lib/forms";
+import { lookupGeo } from "@/lib/geo";
 import { createSubmission, getForm } from "@/lib/store";
 import { clientIp, rateLimit, readVisitor, writeVisitor } from "@/lib/visitor";
 
@@ -9,7 +10,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const form = getForm(id);
   if (!form) return NextResponse.json({ error: "Форма не найдена" }, { status: 404 });
 
-  if (!rateLimit(`submit:${clientIp(req)}`, 10, 10 * 60_000)) {
+  const ip = clientIp(req);
+  if (!rateLimit(`submit:${ip}`, 10, 10 * 60_000)) {
     return NextResponse.json({ error: "Слишком много заявок, попробуйте позже" }, { status: 429 });
   }
 
@@ -28,11 +30,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!result.ok) return NextResponse.json({ errors: result.errors }, { status: 422 });
 
   const { visitorId, sessionId, attribution } = readVisitor(req);
-  createSubmission({ formId: form.id, data: result.data, visitorId, ...attribution });
+  const geo = lookupGeo(ip);
+  createSubmission({ formId: form.id, data: result.data, visitorId, ...attribution, ...geo });
 
   const ua = req.headers.get("user-agent") ?? "";
   if (!isBot(ua)) {
-    recordEvent({ type: "form_submit", path: "/", visitorId, sessionId, ...attribution, ua, meta: form.id });
+    recordEvent({ type: "form_submit", path: "/", visitorId, sessionId, ...attribution, ua, meta: form.id, ...geo });
   }
 
   const res = NextResponse.json({ ok: true });

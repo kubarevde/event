@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { EVENT_TYPES, isBot, recordEvent, type EventType } from "@/lib/analytics";
 import { SESSION_COOKIE as ADMIN_COOKIE, verifySessionToken } from "@/lib/auth";
+import { lookupGeo } from "@/lib/geo";
 import { clientIp, rateLimit, readVisitor, writeVisitor, type Attribution } from "@/lib/visitor";
 
 const clip = (v: unknown, max = 200) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
@@ -20,7 +21,8 @@ export async function POST(req: NextRequest) {
   if (isBot(ua) || (await verifySessionToken(req.cookies.get(ADMIN_COOKIE)?.value))) {
     return new NextResponse(null, { status: 204 });
   }
-  if (!rateLimit(`track:${clientIp(req)}`, 120, 60_000)) return new NextResponse(null, { status: 429 });
+  const ip = clientIp(req);
+  if (!rateLimit(`track:${ip}`, 120, 60_000)) return new NextResponse(null, { status: 429 });
 
   const { visitorId, sessionId, attribution } = readVisitor(req);
   let current: Attribution = attribution;
@@ -59,6 +61,7 @@ export async function POST(req: NextRequest) {
     utmCampaign: current.utmCampaign,
     ua,
     meta: clip(body.label, 200),
+    ...lookupGeo(ip),
   });
 
   const res = new NextResponse(null, { status: 204 });

@@ -16,6 +16,7 @@ export interface Row {
   note: string;
   data: Record<string, SubmissionValue>;
   source: string;
+  geo: string;
 }
 
 interface Props {
@@ -166,6 +167,10 @@ export default function SubmissionsTable({ rows: initialRows, forms, filters }: 
                         <div>
                           <dt className="text-xs text-slate-500">Источник</dt>
                           <dd className="text-sm text-slate-900">{r.source || "прямой заход"}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-slate-500">География</dt>
+                          <dd className="text-sm text-slate-900">{r.geo || "не определена"}</dd>
                         </div>
                         <div>
                           <dt className="text-xs text-slate-500">Форма</dt>
