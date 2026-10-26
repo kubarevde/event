@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, ExternalLink, FileText, Inbox, LogOut, PenSquare } from "lucide-react";
+import { BarChart3, ExternalLink, FileText, Inbox, LogOut, PenSquare, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/admin/submissions", label: "Заявки", icon: Inbox },
   { href: "/admin/forms", label: "Формы", icon: FileText },
   { href: "/admin/content", label: "Контент сайта", icon: PenSquare },
+  { href: "/admin/diagnostics", label: "Диагностика", icon: Stethoscope },
 ];
 
 export default function AdminNav({ newCount }: { newCount: number }) {

@@ -29,6 +29,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
   const range = resolveRange({ range: sp.range ?? "30" }, utcOffset, earliest);
   const s = getStats(range.from, range.to, utcOffsetMinutes(utcOffset));
   const t = s.totals;
+  const cov = getDb()
+    .prepare(
+      `SELECT COUNT(*) AS total, SUM(CASE WHEN country IS NOT NULL THEN 1 ELSE 0 END) AS withGeo
+       FROM events WHERE type = 'pageview' AND ts >= ?`
+    )
+    .get(Date.now() - 7 * 86_400_000) as { total: number; withGeo: number | null };
+  const geoPct = cov.total ? Math.round(((cov.withGeo ?? 0) / cov.total) * 100) : 100;
+  const geoWarning = cov.total >= 10 && geoPct < 50 ? geoPct : null;
 
   return (
     <div>
@@ -57,6 +65,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
           </>
         }
       />
+
+      {geoWarning && (
+        <p className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+          География определилась только у {geoWarning}% визитов за последние 7 дней. Скорее всего, до сайта не доходит
+          реальный IP посетителей —{" "}
+          <Link href="/admin/diagnostics" className="font-medium underline">
+            откройте диагностику
+          </Link>
+          .
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Tile label="Посетители" value={t.visitors} hint="уникальные" />

@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "crypto";
 import type { NextRequest, NextResponse } from "next/server";
+import { resolveClientIp } from "./ip";
 
 // Первичные cookie для подсчёта уникальных посетителей и визитов (без внешних счётчиков).
 const VISITOR_COOKIE = "vid";
@@ -43,16 +44,9 @@ export function writeVisitor(
   }
 }
 
-/** IP посетителя за WAF/прокси: заголовок из CLIENT_IP_HEADER или последний адрес X-Forwarded-For
- *  (его добавляет ближайший прокси, подделать его клиент не может). */
+/** IP посетителя за WAF/прокси (см. lib/ip.ts). */
 export function clientIp(req: NextRequest) {
-  const custom = process.env.CLIENT_IP_HEADER;
-  if (custom) {
-    const v = req.headers.get(custom)?.split(",")[0]?.trim();
-    if (v) return v;
-  }
-  const xff = req.headers.get("x-forwarded-for");
-  return xff?.split(",").pop()?.trim() || req.headers.get("x-real-ip") || "unknown";
+  return resolveClientIp(req).ip;
 }
 
 const buckets = new Map<string, number[]>();

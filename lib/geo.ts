@@ -4,6 +4,7 @@ import net from "net";
 import path from "path";
 import { Reader, type Response } from "maxmind";
 import { RU_CITIES, RU_REGIONS } from "./geo-names";
+import { isPrivateIp } from "./ip";
 
 // Город и регион по IP из офлайн-базы DB-IP Lite (CC BY 4.0, https://db-ip.com).
 // Сам IP не сохраняется — только страна, регион и город.
@@ -26,8 +27,9 @@ function reader(family: "v4" | "v6") {
     try {
       const file = path.join(GEO_DIR, `dbip-city-ip${family}.mmdb`);
       readers[family] = new Reader<DbipRecord>(fs.readFileSync(file));
-    } catch {
+    } catch (e) {
       readers[family] = null; // базы нет (например, при локальной разработке) — география просто не пишется
+      console.warn(`[geo] база ${family} не загружена из ${GEO_DIR}:`, (e as Error).message);
     }
   }
   return readers[family];
@@ -54,7 +56,7 @@ const EMPTY: Geo = { country: null, region: null, city: null };
 
 export function lookupGeo(ip: string): Geo {
   const family = net.isIP(ip);
-  if (!family || isPrivate(ip)) return EMPTY;
+  if (!family || isPrivateIp(ip)) return EMPTY;
   const rec = reader(family === 4 ? "v4" : "v6")?.get(ip);
   if (!rec?.country_code) return EMPTY;
 
@@ -74,11 +76,17 @@ export function lookupGeo(ip: string): Geo {
   };
 }
 
-function isPrivate(ip: string) {
-  return (
-    /^(10\.|127\.|192\.168\.|169\.254\.|0\.)/.test(ip) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(ip) ||
-    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(ip) ||
-    /^(::1$|fc|fd|fe80:)/i.test(ip)
-  );
+
+/** Состояние базы для страницы диагностики. */
+export function geoStatus() {
+  return (["v4", "v6"] as const).map((family) => {
+    const file = path.join(GEO_DIR, `dbip-city-ip${family}.mmdb`);
+    let size = 0;
+    try {
+      size = fs.statSync(file).size;
+    } catch {
+      // нет файла
+    }
+    return { family, file, size, loaded: size > 0 && reader(family) !== null };
+  });
 }
