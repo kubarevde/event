@@ -312,7 +312,7 @@ export default function FormBuilder({ id, initialName, initialSchema, isLanding,
 
         <div className="xl:sticky xl:top-6 xl:self-start">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">Предпросмотр</p>
-          <div className="rounded-lg bg-tgu-dark-elevated p-6">
+          <div className="rounded-lg border border-slate-200 bg-white p-6">
             <DynamicForm formId={`preview-${id}`} schema={schema} preview />
           </div>
         </div>

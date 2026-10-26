@@ -22,3 +22,112 @@ html {
     @apply text-tgu-dark-text antialiased;
   }
 }
+
+/* ---------- лендинг ---------- */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 font-body text-[15px] font-semibold no-underline transition-colors active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply bg-tgu-brand text-white hover:bg-tgu-brand-dark;
+  }
+  .btn-ghost {
+    @apply text-white ring-1 ring-inset ring-white/30 hover:bg-white/5;
+  }
+  .btn-sm {
+    @apply px-3.5 py-2 text-sm;
+  }
+  .eyebrow {
+    @apply font-body text-xs font-semibold uppercase tracking-[0.12em] text-tgu-brand;
+  }
+  .section-title {
+    @apply mt-2 max-w-[22ch] font-heading text-[clamp(26px,3vw,36px)] font-semibold leading-[1.15] tracking-tight text-balance;
+  }
+  .tile {
+    @apply flex min-w-0 flex-col gap-2.5 rounded-2xl border border-tgu-border bg-white p-[22px] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,23,36,0.07)];
+  }
+  .hero-bg {
+    background:
+      radial-gradient(700px 380px at 85% 0%, rgb(var(--brand) / 0.28), transparent 70%),
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 100% 48px;
+  }
+  .ticket-cut {
+    position: relative;
+  }
+  .ticket-cut::before,
+  .ticket-cut::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #0a1628;
+  }
+  .ticket-cut::before { left: -9px; }
+  .ticket-cut::after { right: -9px; }
+  .check-dot {
+    @apply mt-0.5 h-[18px] w-[18px] shrink-0 rounded-full bg-tgu-brand;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");
+    background-position: center;
+    background-size: 11px;
+    background-repeat: no-repeat;
+  }
+  .no-scrollbar { scrollbar-width: thin; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .tile { transition: none; }
+}
+
+/* ---------- режим правки на сайте ---------- */
+.edit-text {
+  outline: 1px dashed transparent;
+  outline-offset: 3px;
+  border-radius: 2px;
+  cursor: text;
+  transition: outline-color 0.15s, background-color 0.15s;
+}
+.edit-text:hover { outline-color: rgb(var(--brand) / 0.6); }
+.edit-text:focus { outline: 2px solid rgb(var(--brand)); background: rgb(var(--brand) / 0.06); }
+.edit-text:empty::before { content: attr(data-placeholder); opacity: 0.4; }
+.edit-img__btn {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  background: rgba(15, 23, 36, 0.85); color: #fff; opacity: 0; transition: opacity 0.15s;
+}
+.edit-img:hover .edit-img__btn, .edit-img__btn:focus-visible { opacity: 1; }
+.edit-controls {
+  position: absolute; top: -12px; right: 8px; z-index: 5;
+  display: inline-flex; gap: 2px; padding: 2px; border-radius: 8px;
+  background: #0f1724; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  opacity: 0; transition: opacity 0.15s;
+}
+*:hover > .edit-controls, .edit-controls:focus-within { opacity: 1; }
+.edit-controls button, .edit-section-bar button {
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 6px;
+  color: #fff; font-size: 12px; font-weight: 500;
+}
+.edit-controls button:hover:not(:disabled), .edit-section-bar button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
+.edit-controls button:disabled, .edit-section-bar button:disabled { opacity: 0.35; cursor: default; }
+.edit-controls button.danger:hover { background: #dc2626; }
+.edit-add {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 8px 14px; border-radius: 12px;
+  border: 1.5px dashed rgb(var(--brand) / 0.5); color: rgb(var(--brand));
+  font-size: 14px; font-weight: 600; background: rgb(var(--brand) / 0.04);
+}
+.edit-add:hover { background: rgb(var(--brand) / 0.1); }
+.edit-section-bar {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20;
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 12px;
+  border-radius: 10px; background: rgb(var(--brand)); color: #fff; font-size: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); white-space: nowrap;
+}
+.edit-hidden > :not(.edit-section-bar) { opacity: 0.35; filter: grayscale(0.6); }
+.edit-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+  border: 1px dashed rgb(var(--brand) / 0.6); color: rgb(var(--brand)); font-size: 12px; font-weight: 600; background: #fff;
+}

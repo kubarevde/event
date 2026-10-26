@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Loader2 } from "lucide-react";
+import { Check, Loader2, PenSquare, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { SiteContent } from "@/lib/content";
@@ -12,9 +12,11 @@ type Obj = Record<string, unknown>;
 
 export default function ContentEditor({
   initial,
+  initialHasChanges,
   forms,
 }: {
   initial: SiteContent;
+  initialHasChanges: boolean;
   forms: { id: string; name: string }[];
 }) {
   const router = useRouter();
@@ -22,6 +24,8 @@ export default function ContentEditor({
   const [content, setContent] = useState(initial);
   const [tab, setTab] = useState(CONTENT_SCHEMA[0].id);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [hasChanges, setHasChanges] = useState(initialHasChanges);
+  const [publishing, setPublishing] = useState(false);
   const dirty = JSON.stringify(saved) !== JSON.stringify(content);
 
   useEffect(() => {
@@ -41,9 +45,27 @@ export default function ContentEditor({
     });
     if (res.ok) {
       setSaved(content);
+      setHasChanges((await res.json()).hasChanges);
       setState("saved");
       router.refresh();
       setTimeout(() => setState("idle"), 2000);
+    } else {
+      setState("error");
+    }
+  };
+
+  const publish = async () => {
+    setPublishing(true);
+    const res = await fetch("/api/admin/content/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(content),
+    });
+    setPublishing(false);
+    if (res.ok) {
+      setSaved(content);
+      setHasChanges(false);
+      router.refresh();
     } else {
       setState("error");
     }
@@ -56,30 +78,39 @@ export default function ContentEditor({
     <div>
       <PageHeader
         title="Контент сайта"
-        description="Все тексты, картинки и блоки лендинга. Изменения появляются на сайте сразу после сохранения."
+        description="Удобнее править прямо на сайте. Здесь — все поля списком. «Сохранить» кладёт изменения в черновик, на сайте они появятся после «Опубликовать»."
         actions={
           <>
-            <a href="/" target="_blank" className={btnCls.secondary}>
-              <ExternalLink className="h-4 w-4" />
-              Открыть сайт
+            <a href="/?edit=1" className={btnCls.secondary}>
+              <PenSquare className="h-4 w-4" />
+              Править на сайте
             </a>
             {dirty && (
               <button type="button" className={btnCls.secondary} onClick={() => setContent(saved)}>
                 Отменить изменения
               </button>
             )}
-            <button type="button" className={btnCls.primary} onClick={save} disabled={!dirty || state === "saving"}>
+            <button type="button" className={btnCls.secondary} onClick={save} disabled={!dirty || state === "saving"}>
               {state === "saving" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : state === "saved" ? (
                 <Check className="h-4 w-4" />
               ) : null}
-              {state === "saved" ? "Сохранено" : "Сохранить"}
+              {state === "saved" ? "Сохранено" : "Сохранить черновик"}
+            </button>
+            <button type="button" className={btnCls.primary} onClick={publish} disabled={(!hasChanges && !dirty) || publishing}>
+              {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              Опубликовать
             </button>
           </>
         }
       />
       {state === "error" && <p className="mb-4 text-sm text-red-600">Не удалось сохранить. Обновите страницу и попробуйте снова.</p>}
+      {hasChanges && !dirty && (
+        <p className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+          В черновике есть неопубликованные изменения.
+        </p>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
         <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">

@@ -1,14 +1,21 @@
 import "server-only";
 import { randomUUID } from "crypto";
-import { DEFAULT_CONTENT, mergeWithDefaults, type SiteContent } from "./content";
+import { DEFAULT_CONTENT, mergeWithDefaults, normalizeOrder, type SiteContent } from "./content";
 import { getDb, getSetting, setSetting } from "./db";
 import { defaultFormSchema, type FormRecord, type FormSchema, type SubmissionValue } from "./forms";
 
 // ---------- Контент ----------
+// Опубликованная версия — то, что видят посетители. Черновик — то, что правит администратор;
+// «Опубликовать» копирует черновик в опубликованную версию и кладёт её в историю.
+
+function normalize(saved: unknown): SiteContent {
+  const content = mergeWithDefaults(DEFAULT_CONTENT, saved);
+  content.order = normalizeOrder(content.order);
+  return content;
+}
 
 export function getContent(): SiteContent {
-  const saved = getSetting<unknown>("content");
-  const content = mergeWithDefaults(DEFAULT_CONTENT, saved);
+  const content = normalize(getSetting<unknown>("content"));
   // При первом запуске создаём форму заявки и привязываем её к лендингу.
   if (!content.registration.formId) {
     const forms = listForms();
@@ -19,8 +26,49 @@ export function getContent(): SiteContent {
   return content;
 }
 
-export function saveContent(content: SiteContent) {
-  setSetting("content", mergeWithDefaults(DEFAULT_CONTENT, content));
+export function getDraft(): { content: SiteContent; hasChanges: boolean } {
+  const published = getContent();
+  const draft = getSetting<unknown>("content_draft");
+  if (!draft) return { content: published, hasChanges: false };
+  const content = normalize(draft);
+  return { content, hasChanges: JSON.stringify(content) !== JSON.stringify(published) };
+}
+
+export function saveDraft(content: SiteContent) {
+  setSetting("content_draft", normalize(content));
+}
+
+export function discardDraft() {
+  getDb().prepare("DELETE FROM settings WHERE key = 'content_draft'").run();
+}
+
+export function publishDraft() {
+  const { content } = getDraft();
+  const db = getDb();
+  db.transaction(() => {
+    setSetting("content", content);
+    db.prepare("INSERT INTO content_versions (content, created_at) VALUES (?, ?)").run(JSON.stringify(content), Date.now());
+    // Храним последние 50 версий
+    db.prepare("DELETE FROM content_versions WHERE id NOT IN (SELECT id FROM content_versions ORDER BY id DESC LIMIT 50)").run();
+    db.prepare("DELETE FROM settings WHERE key = 'content_draft'").run();
+  })();
+}
+
+export function listVersions(): { id: number; createdAt: number }[] {
+  return (getDb().prepare("SELECT id, created_at FROM content_versions ORDER BY id DESC").all() as {
+    id: number;
+    created_at: number;
+  }[]).map((r) => ({ id: r.id, createdAt: r.created_at }));
+}
+
+/** Кладёт старую версию в черновик (публикация — отдельным шагом). */
+export function restoreVersion(id: number): boolean {
+  const row = getDb().prepare("SELECT content FROM content_versions WHERE id = ?").get(id) as
+    | { content: string }
+    | undefined;
+  if (!row) return false;
+  saveDraft(JSON.parse(row.content));
+  return true;
 }
 
 // ---------- Формы ----------

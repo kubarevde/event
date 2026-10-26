@@ -13,7 +13,7 @@ interface DynamicFormProps {
 }
 
 const inputClass =
-  "w-full border border-white/15 bg-white/5 px-3.5 py-2.5 font-body text-sm text-white placeholder:text-white/35 outline-none transition-colors focus:border-tgu-brand focus:bg-white/[0.07]";
+  "w-full rounded-[10px] border border-tgu-border bg-tgu-light px-3.5 py-2.5 font-body text-[15px] text-tgu-dark-text placeholder:text-slate-400 outline-none transition-colors focus:border-tgu-brand focus:bg-white";
 
 function initialValues(schema: FormSchema) {
   const values: Record<string, SubmissionValue> = {};
@@ -102,36 +102,36 @@ export default function DynamicForm({ formId, schema, preview = false }: Dynamic
   if (status === "done") {
     return (
       <div className="py-6 text-center">
-        <CheckCircle2 className="mx-auto h-10 w-10 text-tgu-brand" strokeWidth={1.5} aria-hidden />
-        <p className="mt-4 font-heading text-lg font-semibold text-white">{schema.successTitle}</p>
-        <p className="mt-2 whitespace-pre-line font-body text-sm text-white/70">{schema.successMessage}</p>
+        <CheckCircle2 className="mx-auto h-12 w-12 text-tgu-brand" strokeWidth={1.5} aria-hidden />
+        <p className="mt-4 font-heading text-xl font-semibold text-tgu-dark-text">{schema.successTitle}</p>
+        <p className="mt-2 whitespace-pre-line font-body text-sm text-tgu-ink-secondary">{schema.successMessage}</p>
       </div>
     );
   }
 
   return (
     <form ref={rootRef} onSubmit={onSubmit} noValidate className="space-y-5">
-      {schema.title && <p className="font-heading text-lg font-semibold text-white">{schema.title}</p>}
+      {schema.title && <p className="font-heading text-lg font-semibold text-tgu-dark-text">{schema.title}</p>}
       {schema.description && (
-        <p className="-mt-2 whitespace-pre-line font-body text-sm text-white/65">{schema.description}</p>
+        <p className="-mt-2 whitespace-pre-line font-body text-sm text-tgu-ink-secondary">{schema.description}</p>
       )}
 
       {/* Скрытое поле-ловушка для ботов */}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
-      <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+      <div className="grid gap-x-3.5 gap-y-4 sm:grid-cols-2">
         {schema.fields.map((field) => {
           const error = errors[field.id];
           const id = `${formId}-${field.id}`;
           const span = field.half ? "" : "sm:col-span-2";
           const label = (
-            <span className="mb-1.5 block font-body text-xs font-medium text-white/75">
+            <span className="mb-1.5 block font-body text-[13px] font-medium text-tgu-ink-secondary">
               {field.label}
               {field.required && <span className="text-tgu-brand"> *</span>}
             </span>
           );
-          const help = field.help && <span className="mt-1 block font-body text-xs text-white/45">{field.help}</span>;
-          const err = error && <span className="mt-1 block font-body text-xs text-red-400">{error}</span>;
+          const help = field.help && <span className="mt-1 block font-body text-xs text-slate-400">{field.help}</span>;
+          const err = error && <span className="mt-1 block font-body text-xs text-red-600">{error}</span>;
 
           if (field.type === "checkbox" || field.type === "consent") {
             return (
@@ -143,7 +143,7 @@ export default function DynamicForm({ formId, schema, preview = false }: Dynamic
                     onChange={(e) => set(field.id, e.target.checked)}
                     className="mt-0.5 h-4 w-4 shrink-0 accent-tgu-brand"
                   />
-                  <span className="font-body text-xs leading-relaxed text-white/70">
+                  <span className="font-body text-[13px] leading-relaxed text-tgu-ink-secondary">
                     {field.type === "consent" ? <ConsentLabel field={field} /> : field.label}
                     {field.required && <span className="text-tgu-brand"> *</span>}
                   </span>
@@ -159,7 +159,7 @@ export default function DynamicForm({ formId, schema, preview = false }: Dynamic
             const current = values[field.id] ?? (multi ? [] : "");
             return (
               <fieldset key={field.id} className={span}>
-                <legend className="mb-1.5 block font-body text-xs font-medium text-white/75">
+                <legend className="mb-1.5 block font-body text-[13px] font-medium text-tgu-ink-secondary">
                   {field.label}
                   {field.required && <span className="text-tgu-brand"> *</span>}
                 </legend>
@@ -169,10 +169,10 @@ export default function DynamicForm({ formId, schema, preview = false }: Dynamic
                     return (
                       <label
                         key={opt}
-                        className={`cursor-pointer border px-3.5 py-2 font-body text-sm transition-colors ${
+                        className={`flex-1 cursor-pointer rounded-[10px] border px-3.5 py-2.5 text-center font-body text-sm font-medium transition-colors ${
                           checked
-                            ? "border-tgu-brand bg-tgu-brand/15 text-white"
-                            : "border-white/15 text-white/70 hover:border-white/30"
+                            ? "border-tgu-brand bg-tgu-brand-light text-tgu-brand"
+                            : "border-tgu-border bg-tgu-light text-tgu-ink-secondary hover:border-slate-300"
                         }`}
                       >
                         <input
@@ -219,7 +219,7 @@ export default function DynamicForm({ formId, schema, preview = false }: Dynamic
                   id={id}
                   value={(values[field.id] as string) ?? ""}
                   onChange={(e) => set(field.id, e.target.value)}
-                  className={`${inputClass} [&>option]:text-tgu-dark-text`}
+                  className={`${inputClass} `}
                 >
                   <option value="">{field.placeholder || "Выберите…"}</option>
                   {field.options.map((opt) => (
@@ -249,12 +249,12 @@ export default function DynamicForm({ formId, schema, preview = false }: Dynamic
         })}
       </div>
 
-      {message && <p className="font-body text-sm text-red-400">{message}</p>}
+      {message && <p className="font-body text-sm text-red-600">{message}</p>}
 
       <button
         type="submit"
         disabled={status === "sending"}
-        className="inline-flex w-full items-center justify-center rounded-md bg-tgu-brand px-6 py-3 font-body text-base font-medium text-white shadow-sm transition-colors hover:bg-tgu-brand-dark disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center rounded-lg bg-tgu-brand px-6 py-3.5 font-body text-base font-semibold text-white transition-colors hover:bg-tgu-brand-dark disabled:opacity-60"
       >
         {status === "sending" && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />}
         {schema.submitLabel}

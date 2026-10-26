@@ -57,6 +57,11 @@ const MIGRATIONS = [
    ALTER TABLE submissions ADD COLUMN country TEXT;
    ALTER TABLE submissions ADD COLUMN region TEXT;
    ALTER TABLE submissions ADD COLUMN city TEXT;`,
+  `CREATE TABLE content_versions (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     content TEXT NOT NULL,
+     created_at INTEGER NOT NULL
+   );`,
 ];
 
 function open() {

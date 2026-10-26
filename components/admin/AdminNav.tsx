@@ -51,6 +51,13 @@ export default function AdminNav({ newCount }: { newCount: number }) {
       </nav>
       <div className="flex gap-1 border-t border-slate-100 p-2 md:block md:space-y-1 md:p-3">
         <a
+          href="/?edit=1"
+          className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-tgu-brand hover:bg-slate-100"
+        >
+          <PenSquare className="h-4 w-4" aria-hidden />
+          Править сайт
+        </a>
+        <a
           href="/"
           target="_blank"
           className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
